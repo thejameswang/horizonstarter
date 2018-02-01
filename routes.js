@@ -79,14 +79,17 @@ router.get('/project/:projectid', function(req, res) {
     if(error) {
       res.status(404).send(error)
     } else {
-      res.render('project',{
-        id: projectid,
-        title: result.title,
-        goal: result.goal,
-        description: result.description,
-        start: result.start,
-        end: result.end
+      var total = 0;
+      var count = 0;
+      result.contributions.forEach(function(contribution) {
+        count++;
+        total += contribution.amount;
       })
+      var percent = total/result.goal
+      result.total = total;
+      result.percent= (percent * 100).toFixed(2);
+      result.count = count;
+      res.render('project',result)
     }
   })
   // YOUR CODE HERE
@@ -95,23 +98,25 @@ router.get('/project/:projectid', function(req, res) {
 // Part 4: Contribute to a project
 // Implement the GET /project/:projectid endpoint
 router.post('/project/:projectid', function(req, res) {
+  var newcont = {name: req.body.contributionName, amount: req.body.contribution}
+  // console.log(req.body)
   var projectid = req.params.projectid;
   Project.findById(projectid, function(error, result){
     if(error) {
       res.status(404).send("THERE WAS AN ERROR IDK WHY")
     } else {
-      result.contribution.push({
-        name: req.body.name,
-        amount: req.body.contribution
-      })
-      result.save(function(){
+      if(result.contributions) {
+        result.contributions.push(newcont)
+      } else {
+        result.contributions = [].push(newcont)
+      }
+      console.log(result)
+      result.save(function(error){
         if(error) {
           res.status(404).send("THERE WAS ANOTHER ERROR IDK WHY")
         } else {
-          console.log("THANK YOU FOR YOUR CONTRIBUTION")
-          
+          res.redirect(`/project/${projectid}`)
         }
-      })
       })
     }
   })
