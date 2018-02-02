@@ -1,6 +1,38 @@
 <h1>View projects</h1>
+<form class="" action="/" method="get" style="margin-bottom: 2em">
+  <div class="form-group">
+    <label>Sort by Elements</label>
+    <input type="radio" name="sort" value="goal">Goal</input>
+    <input type="radio" name="sort" value="start">Start Date</input>
+    <input type="radio" name="sort" value="end">End Date</input>
+  </div>
+  <div class="form-group">
+    <label>Sort Direction</label>
+    <input type="radio" name="sortOrder" value="1">Ascending</input>
+    <input type="radio" name="sortOrder" value="-1">Descending</input>
+  </div>
+  <div class="form-group">
+    <label>Sort by Contribution</label>
+    <input type="radio" name="totalCont" value="contributions">Total Contribution</input>
+  </div>
+  <div class="form-group">
+    <label>Filter by Completion</label>
+    <a href="/?completed=completed"><button type="button" name="button">Completed Goals</button></a>
+    <a href="/?completed=incompleted"><button type="button" name="button">Uncompleted Goals</button></a>
+  </div>
+  <input type="submit">
+</form>
+
 {{#each items}}
  <p>{{this.title}}</p>
+ <a href="/project/{{this.id}}"><button type="button" name="button">See Project</button></a>
+ <p>{{this.goal}}</p>
+ <p>{{this.description}}</p>
+ <p>{{this.start}}</p>
+ <p>{{this.end}}</p>
+ <p>Contributions: {{this.contributions.name}} {{this.contributions.amount}}</p>
+ <p>{{this.category}}</p>
+ <p></p>
 {{/each}}
 <a href="/new">Create new project</a>
 <!-- Part 1: View all projects -->

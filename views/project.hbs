@@ -5,6 +5,8 @@
   <h2>{{title}}</h2>
   <h3>{{goal}}</h3>
   <p>{{description}}</p>
+  <a href="/project/{{id}}/edit"><button href="/project/{{id}}/edit"type="button" name="button">Edit Project</button></a>
+  <h3>Category: {{category}}</h3>
   <h3>Start Date: {{start}}</h3>
   <h3>End Date: {{end}}</h3>
   <div class="">Progress:
@@ -12,7 +14,7 @@
       <div class="progress-bar progress-bar-success" role="progressbar" style="width: {{percent}}%" aria-valuenow="{{percent}}" aria-valuemin="0" aria-valuemax="100">{{percent}}% completed</div>
     </div>
   </div>
-  <h4>Total Contributors: {{count}}</h4>
+  <h4>Total Contributors: {{count }}</h4>
   <h4>Total amount of contributions: {{total}}
     <ul>
       {{#each contributions}}

@@ -23,11 +23,79 @@ router.get('/create-test-project', function(req, res) {
 // Part 1: View all projects
 // Implement the GET / endpoint.
 router.get('/', function(req, res) {
-  Project.find(function(err, array) {
-    res.render('index', {items: array});
-  });
-  // YOUR CODE HERE
+  // var sortDirection = req.query.sortDirection;
+  if (req.query.completed) {
+    if(req.query.completed ==='completed') {
+      Project.find(function(err,array) {
+         res.render('index', {items:filterComplete(array)})
+      })
+    } else {
+      Project.find(function(err,array) {
+        res.render('index',{items:filterUncomplete(array)} )
+      })
+    }
+  } else {
+    if (req.query.sort) {
+      var sortObject = {};
+      sortObject[req.query.sort] = 1;
+      if(parseInt(req.query.sortOrder) === -1) {
+        sortObject[req.query.sort] = -1
+      }
+      Project.find().sort(sortObject).exec(function(err, array) {
+        if(req.query.totalCont) {
+          res.render('index', {items:sumCont(array)})
+        } else {
+          res.render('index',{items:array})
+        }// YOUR CODE HERE
+      });
+    }
+    else {
+      Project.find(function(err,array){
+        if(req.query.totalCont) {
+          res.render('index', {items:sumCont(array)})
+        } else {
+          res.render('index',{items:array})
+        }
+      })
+    }
+  }
 });
+function filterComplete(data) {
+
+  return data.filter(function(a) {
+    var atotal = 0;
+    // console.log(a)
+    a.contributions.forEach(function(item) {
+      atotal+=item.amount;
+      // console.log(atotal)
+    });
+    // console.log(atotal)
+    return (atotal/a.goal) >= 1
+  })
+}
+function filterUncomplete(data) {
+  return data.filter(function(a) {
+    var atotal = 0;
+    a.contributions.forEach(function(item) {
+      atotal+=item.amount;
+    });
+    return (atotal/a.goal) < 1
+  })
+}
+
+function sumCont(data) {
+  return data.sort(function(a,b) {
+      var atotal = 0;
+      a.contributions.forEach(function(item) {
+        atotal+=item.amount;
+      })
+      var btotal = 0;
+      b.contributions.forEach(function(item) {
+        btotal+=item.amount;
+      })
+      return btotal - atotal;
+    })
+}
 
 // Part 2: Create project
 // Implement the GET /new endpoint
@@ -40,12 +108,15 @@ router.get('/new', function(req, res) {
 // Part 2: Create project
 // Implement the POST /new endpoint
 router.post('/new', function(req, res) {
+  console.log(req.body.category)
+  console.log(req.body.title)
   var newObj = new Project ({
     title: req.body.title,
     goal: req.body.goal,
     description: req.body.description,
     start: new Date(req.body.start),
-    end: new Date(req.body.end)
+    end: new Date(req.body.end),
+    category: req.body.category
   });
   // console.log(req.body.title)
   // console.log(req.body.goal)
@@ -89,6 +160,7 @@ router.get('/project/:projectid', function(req, res) {
       result.total = total;
       result.percent= (percent * 100).toFixed(2);
       result.count = count;
+      console.log(result)
       res.render('project',result)
     }
   })
@@ -122,6 +194,36 @@ router.post('/project/:projectid', function(req, res) {
   })
   // YOUR CODE HERE
 });
+
+router.get('/project/:projectid/edit', function(req, res) {
+  var projectid = req.params.projectid;
+  Project.findById(projectid, function(error, result) {
+    if(error) {
+      res.status(404).send(error)
+    } else {
+      res.render('editProject',result)
+    }
+  })
+})
+
+router.post('/project/:projectid/edit', function(req,res) {
+  Project.findByIdAndUpdate(req.params.projectid, {
+  title: req.body.title,
+  goal: req.body.goal,
+  description: req.body.description,
+  start: new Date(req.body.start),
+  end: new Date(req.body.end),
+  category: req.body.category
+  // YOUR CODE HERE
+  }, function(err) {
+    if(err) {
+      res.status(400).send("YOU FUCKED UP")
+    } else {
+      res.redirect('/project/' + req.params.projectid)
+    }
+  // YOUR CODE HERE
+} );
+})
 
 // Part 6: Edit project
 // Create the GET /project/:projectid/edit endpoint
